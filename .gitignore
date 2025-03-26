@@ -29,7 +29,8 @@ env/
 ENV/
 
 # Replit specific
-.replit
+# Include .replit file for configuration
+# .replit
 replit.nix
 .pythonlibs/
 .upm/
@@ -42,7 +43,8 @@ Thumbs.db
 *.log
 
 # Data
-*.csv
+# Include CSV files for the dataset
+# *.csv
 *.pkl
 
 # Jupyter Notebook
