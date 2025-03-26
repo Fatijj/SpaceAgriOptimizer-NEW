@@ -1,12 +1,15 @@
-name: Deploy Streamlit app
+name: Streamlit App CI
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     
     steps:
@@ -20,15 +23,25 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install -r requirements_github.txt; fi
+        pip install -r requirements_github.txt
         
-    - name: Run tests
+    - name: Run linting
       run: |
-        # Add any tests you have here
-        echo "Running tests..."
+        pip install flake8
+        # Ignore line length and minor formatting issues
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: gh-pages
-        folder: .
+    - name: Run basic validation
+      run: |
+        # Simple validation to check if the app can be imported without errors
+        python -c "import app"
+        
+    - name: Check if Streamlit app runs
+      run: |
+        # Start Streamlit in headless mode briefly to check for startup errors
+        timeout 10s streamlit run app.py --server.headless true || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+
+# Note: Actual deployment would typically be done with:
+# - Streamlit Cloud: Connect GitHub repository directly
+# - Heroku: Use their GitHub integration for automatic deployment
+# - AWS/GCP/Azure: Deploy using their respective CI/CD workflows
