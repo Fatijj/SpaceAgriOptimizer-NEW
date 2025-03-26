@@ -2,7 +2,12 @@
 Streamlit dashboard for Space Agriculture RL System
 """
 
-import streamlit as st
+import os
+import time
+from datetime import datetime
+import json
+import logging
+from PIL import Image
 import pandas as pd
 import numpy as np
 # Import visualization library
@@ -11,19 +16,27 @@ import matplotlib.pyplot as plt
 # Make TensorFlow optional - default to not available to avoid import errors
 TENSORFLOW_AVAILABLE = False
 print("TensorFlow not available - using basic image processing")
-import os
-import time
-from datetime import datetime
-import json
-import logging
-from PIL import Image
-from dotenv import load_dotenv
 
-# Load environment variables from .env file if it exists
+# Determine if we're running directly in Streamlit or being imported
+# This allows the module to be imported for validation without errors
+is_streamlit_runtime = False
 try:
-    load_dotenv()
-except ImportError:
-    logging.warning("python-dotenv not installed, skipping .env loading")
+    import streamlit.runtime
+    is_streamlit_runtime = True
+except:
+    pass
+
+# Only import streamlit if we're in a streamlit runtime context
+# or if we're running as a main script
+if is_streamlit_runtime or __name__ == "__main__":
+    import streamlit as st
+    from dotenv import load_dotenv
+    
+    # Load environment variables from .env file if it exists
+    try:
+        load_dotenv()
+    except ImportError:
+        logging.warning("python-dotenv not installed, skipping .env loading")
 
 try:
     import kaggle
@@ -70,39 +83,42 @@ logging.basicConfig(level=logging.INFO,
                     filename='streamlit_app.log')
 logger = logging.getLogger('SpaceAgriRL.App')
 
-# Initialize session state variables
-if 'plant_data' not in st.session_state:
-    try:
-        st.session_state.plant_data = load_plant_data()
-    except:
-        st.session_state.plant_data = generate_plant_data()
+# Initialize session state variables only if we're in a streamlit runtime
+# This prevents errors when the app is imported for validation
+if is_streamlit_runtime or __name__ == "__main__":
+    # Initialize session state variables
+    if 'plant_data' not in st.session_state:
+        try:
+            st.session_state.plant_data = load_plant_data()
+        except:
+            st.session_state.plant_data = generate_plant_data()
 
-if 'simulation_history' not in st.session_state:
-    st.session_state.simulation_history = []
+    if 'simulation_history' not in st.session_state:
+        st.session_state.simulation_history = []
 
-if 'agent' not in st.session_state:
-    st.session_state.agent = None
+    if 'agent' not in st.session_state:
+        st.session_state.agent = None
 
-if 'env' not in st.session_state:
-    st.session_state.env = None
+    if 'env' not in st.session_state:
+        st.session_state.env = None
 
-if 'training_running' not in st.session_state:
-    st.session_state.training_running = False
+    if 'training_running' not in st.session_state:
+        st.session_state.training_running = False
 
-if 'experiment_results' not in st.session_state:
-    st.session_state.experiment_results = {}
-    
-if 'disease_detector' not in st.session_state:
-    st.session_state.disease_detector = PlantDiseaseDetector()
-    
-if 'diagnosis_results' not in st.session_state:
-    st.session_state.diagnosis_results = None
-    
-if 'raw_predictions' not in st.session_state:
-    st.session_state.raw_predictions = None
+    if 'experiment_results' not in st.session_state:
+        st.session_state.experiment_results = {}
+        
+    if 'disease_detector' not in st.session_state:
+        st.session_state.disease_detector = PlantDiseaseDetector()
+        
+    if 'diagnosis_results' not in st.session_state:
+        st.session_state.diagnosis_results = None
+        
+    if 'raw_predictions' not in st.session_state:
+        st.session_state.raw_predictions = None
 
-if 'language' not in st.session_state:
-    st.session_state.language = 'English'
+    if 'language' not in st.session_state:
+        st.session_state.language = 'English'
 
 # Page config
 st.set_page_config(
@@ -125,36 +141,7 @@ This application simulates different plant species growing in space conditions a
 an AI agent to find the optimal environmental settings.
 """)
 
-# Initialize session state for storing simulation data
-if 'plant_data' not in st.session_state:
-    try:
-        st.session_state.plant_data = load_plant_data()
-    except:
-        st.session_state.plant_data = generate_plant_data()
-
-if 'simulation_history' not in st.session_state:
-    st.session_state.simulation_history = []
-
-if 'agent' not in st.session_state:
-    st.session_state.agent = None
-
-if 'env' not in st.session_state:
-    st.session_state.env = None
-
-if 'training_running' not in st.session_state:
-    st.session_state.training_running = False
-
-if 'experiment_results' not in st.session_state:
-    st.session_state.experiment_results = {}
-    
-if 'disease_detector' not in st.session_state:
-    st.session_state.disease_detector = PlantDiseaseDetector()
-    
-if 'diagnosis_results' not in st.session_state:
-    st.session_state.diagnosis_results = None
-    
-if 'raw_predictions' not in st.session_state:
-    st.session_state.raw_predictions = None
+# Note: Session state variables are already initialized above
 
 # Sidebar for configuration
 st.sidebar.header("Configuration")
