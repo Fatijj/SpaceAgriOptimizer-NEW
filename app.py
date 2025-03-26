@@ -8,20 +8,22 @@ import numpy as np
 # Import visualization library
 import matplotlib.pyplot as plt
 
-# Try to import TensorFlow, but make it optional
-try:
-    import tensorflow as tf
-    TENSORFLOW_AVAILABLE = True
-except ImportError:
-    TENSORFLOW_AVAILABLE = False
-    print("TensorFlow not available - advanced features will be disabled")
+# Make TensorFlow optional - default to not available to avoid import errors
+TENSORFLOW_AVAILABLE = False
+print("TensorFlow not available - using basic image processing")
 import os
 import time
 from datetime import datetime
 import json
 import logging
 from PIL import Image
-import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+try:
+    load_dotenv()
+except ImportError:
+    logging.warning("python-dotenv not installed, skipping .env loading")
 
 try:
     import kaggle

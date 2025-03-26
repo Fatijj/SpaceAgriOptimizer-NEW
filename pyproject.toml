@@ -5,11 +5,13 @@ description = "A reinforcement learning system for optimizing plant growth condi
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "matplotlib",
-    "numpy", 
+    "numpy==1.23.5",
     "pandas",
     "streamlit>=1.43.2",
     "tensorflow",
-    "kaggle"
+    "kaggle",
+    "python-dotenv>=1.1.0",
+    "setuptools>=78.0.2",
 ]
 
 [[tool.uv.index]]
